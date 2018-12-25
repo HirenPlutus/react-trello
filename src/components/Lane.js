@@ -130,7 +130,7 @@ class Lane extends Component {
     return this.props.droppable && sourceContainerOptions.groupName === this.groupName
   }
 
-  get groupName()  {
+  get groupName() {
     const {boardId} = this.props
     return `TrelloBoard${boardId}Lane`
   }
@@ -231,10 +231,15 @@ class Lane extends Component {
   }
 
   renderFooter = () => {
-    const {collapsibleLanes, cards} = this.props
+    const {collapsibleLanes, cards, customFooter} = this.props
     const {collapsed} = this.state
-    if (collapsibleLanes && cards.length > 0) {
-      return <LaneFooter onClick={this.toggleLaneCollapsed}>{collapsed ? <ExpandBtn /> : <CollapseBtn />}</LaneFooter>
+    if (customFooter) {
+      const customLaneElement = React.cloneElement(customFooter, {...this.props})
+      return <span>{customLaneElement}</span>
+    } else {
+      if (collapsibleLanes && cards.length > 0) {
+        return <LaneFooter onClick={this.toggleLaneCollapsed}>{collapsed ? <ExpandBtn /> : <CollapseBtn />}</LaneFooter>
+      }
     }
   }
 
@@ -246,7 +251,12 @@ class Lane extends Component {
     const {loading, isDraggingOver} = this.state
     const {id, onLaneClick, ...otherProps} = this.props
     return (
-      <Section {...otherProps} key={id} onClick={() => onLaneClick && onLaneClick(id)} draggable={false} className="react-trello-lane">
+      <Section
+        {...otherProps}
+        key={id}
+        onClick={() => onLaneClick && onLaneClick(id)}
+        draggable={false}
+        className="react-trello-lane">
         {this.renderHeader()}
         {this.renderDragContainer(isDraggingOver)}
         {loading && <Loader />}
@@ -302,4 +312,7 @@ const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(laneActions, dispatch)
 })
 
-export default connect(null, mapDispatchToProps)(Lane)
+export default connect(
+  null,
+  mapDispatchToProps
+)(Lane)
